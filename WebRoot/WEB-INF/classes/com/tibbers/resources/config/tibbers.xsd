@@ -13,6 +13,8 @@ elementFormDefault="qualified">
 		<xs:complexContent>
 			<xs:restriction base="xs:anyType">
 				<xs:attribute name="class" type="xs:string" use="required" ></xs:attribute>
+				<xs:attribute name="id" type="xs:string" use="required" ></xs:attribute>
+				<xs:attribute name="name" type="xs:string" use="optional" ></xs:attribute>
 			</xs:restriction>
 			</xs:complexContent>
 		</xs:complexType>
@@ -32,7 +34,7 @@ elementFormDefault="qualified">
 	</xs:element>
 	
 	<!-- 是否基于注解自动扫描  -->
-	<xs:element name="autoscan">
+	<xs:element name="auto-scan">
 		<xs:complexType>
 		<xs:complexContent>
 				<xs:restriction base="xs:anyType">
@@ -52,7 +54,6 @@ elementFormDefault="qualified">
 					<xs:attribute name="src" use="required" type="xs:string"></xs:attribute>
 				</xs:restriction>
 			</xs:complexContent>
-			
 		</xs:complexType>
 	</xs:element>
 

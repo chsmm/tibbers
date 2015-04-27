@@ -3,6 +3,7 @@ package com.tibbers.resolver;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,13 +37,18 @@ import com.tibbers.util.xml.SaxErrorHandler;
  */
 public class XmlContextResolver extends AbstractContextResolver {
 	
+	private static final String INCLUDE_NODE="include";
+	private static final String INCLUDE_ATTRIBUTE="src";
+	
 	protected FileManager fileManager = new DefaultFileManager();
 	
 	protected ErrorHandler errorHandler = new SaxErrorHandler();
 	
 	protected EntityResolver entityResolver = new SaxEntityResolver();
 	
-	protected Set<String> set = new HashSet<String>();
+	protected Set<String> loadConfigurationFiles = new HashSet<String>();
+	
+	private List<Document> documents = new ArrayList<Document>();
 	
 	public XmlContextResolver(PropertyValues config) {
 		super(config);
@@ -50,26 +56,65 @@ public class XmlContextResolver extends AbstractContextResolver {
 
 	@Override
 	public void loading() {
-		URL url = getConfigurationUrl(getContextConfig());
-		InputStream is =fileManager.loadFile(url);
-		InputSource in = new InputSource(is);
-		try {
-			Document doc = doLoadDocument(in);
-			System.out.println(doc);
-			//Element  rootElement =  doc.getDocumentElement();
-			//parse(rootElement);
-		} finally{
+		loadConfigurationFiles(getContextConfig());
+		for(Document doc : documents){
+			print(doc);
+		}
+		//System.out.println(documents);
+	}
+	
+	/**
+	 * 加载配置文件
+	 * @param fileName
+	 */
+	private void loadConfigurationFiles(String fileName){
+		if(!loadConfigurationFiles.contains(fileName)){
+			loadConfigurationFiles.add(fileName);
+			URL url = getConfigurationUrl(getContextConfig());
+			InputStream is =fileManager.loadFile(url);
+			InputSource in = new InputSource(is);
+			Document doc;
 			try {
-				is.close();
-			} catch (IOException e) {
+				doc = doLoadDocument(in);
+			} finally{
+				try {
+					is.close();
+				} catch (IOException e) {
+				}
 			}
+			loadIncludeElementValue(doc);
 		}	
 	}
 	
+	/**
+	 * 加载inculude 节点引入的文件
+	 * @param doc
+	 */
+	private void loadIncludeElementValue(Document doc){
+		Element rootElement =  doc.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+		for (int i = 0; i < childSize; i++) {
+			Node node =children.item(i);
+			if(node instanceof Element){
+				Element element =(Element)node;
+				final String nodeName = element.getNodeName();
+				if(INCLUDE_NODE.equals(nodeName)){
+					loadConfigurationFiles(element.getAttribute(INCLUDE_ATTRIBUTE));
+					rootElement.removeChild(node);
+				}
+			}	
+		}
+		documents.add(doc);
+	}
 	
-	private void loadConfigurationFiles(String fileName){
-		if(!set.contains(fileName)){
-			set.add(fileName);
+	private void print(Document doc){
+		Element rootElement =  doc.getDocumentElement();
+		NodeList children = rootElement.getChildNodes();
+		int childSize = children.getLength();
+		for (int i = 0; i < childSize; i++) {
+			Node node =children.item(i);
+			System.out.println(node.getNodeName());
 		}
 	}
 	
@@ -95,23 +140,7 @@ public class XmlContextResolver extends AbstractContextResolver {
 	}
 	
 	
-	private  void parse(Element  rootElement){
-		NodeList list = rootElement.getChildNodes();
-		if(list!=null&&list.getLength()>0){
-			for (int i = 0; i < list.getLength(); i++) {
-				Node node =list.item(i);
-				if(node instanceof Element){
-					Element e =(Element)node;
-					System.out.println(e .getNodeName());
-					parse(e);
-					System.out.println(e .getNodeName());
-					System.out.println("-------------------------");
-				}
-			
-				
-			}
-		}
-	}
+
 	
 	/**
 	 * 获取配置文件url 

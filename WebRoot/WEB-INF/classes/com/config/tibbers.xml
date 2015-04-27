@@ -4,5 +4,4 @@ xmlns="http://www.tibbers.org/schema/mvc"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.tibbers.org/schema/mvc http://www.tibbers.org/schema/mvc/tibbers-mvc-1.0.xsd">
 
-
 </tibbers>
