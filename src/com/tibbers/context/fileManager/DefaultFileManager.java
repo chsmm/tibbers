@@ -1,4 +1,4 @@
-package com.tibbers.resolver.fileManager;
+package com.tibbers.context.fileManager;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -4,8 +4,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import com.tibbers.config.ServletConfigProperty;
-import com.tibbers.resolver.Resolver;
-import com.tibbers.resolver.XmlContextResolver;
+import com.tibbers.context.Context;
+import com.tibbers.context.WebXmlContext;
 
 public abstract class SuperServlet extends HttpServlet{
 
@@ -22,15 +22,15 @@ public abstract class SuperServlet extends HttpServlet{
 
 	@Override
 	public void init() throws ServletException {
-		Resolver resolver = createResolver();
-		resolver.setContainer(null);
-		resolver.loading();	
+		Context context = createContext();
+		context.setContainer(null);
+		context.loading();	
 	}
 	
 	
 	
-	private Resolver createResolver(){
-		return new XmlContextResolver(new ServletConfigProperty(getServletConfig()));
+	private Context createContext(){
+		return new WebXmlContext(new ServletConfigProperty(getServletConfig()));
 		
 	}
 	

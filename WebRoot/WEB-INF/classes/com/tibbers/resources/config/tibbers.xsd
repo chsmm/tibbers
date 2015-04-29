@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
 targetNamespace="http://www.tibbers.org/schema/mvc"
-xmlns="http://www.tibbers.org/schema/mvc"
-elementFormDefault="qualified">
+xmlns="http://www.tibbers.org/schema/mvc">
+
+	<xs:import namespace="http://www.w3.org/XML/1998/namespace"/>
 
 	<!-- 根目录 -->
 	<xs:element name="tibbers" ></xs:element>
@@ -38,7 +39,6 @@ elementFormDefault="qualified">
 		<xs:complexType>
 		<xs:complexContent>
 				<xs:restriction base="xs:anyType">
-					<xs:attribute  name="open" type="xs:boolean" use="required"></xs:attribute>
 					<xs:attribute  name="package" use="required" type="xs:string"></xs:attribute>
 				</xs:restriction>
 			</xs:complexContent>

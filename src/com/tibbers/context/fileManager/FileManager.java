@@ -1,4 +1,4 @@
-package com.tibbers.resolver.fileManager;
+package com.tibbers.context.fileManager;
 
 import java.io.InputStream;
 import java.net.URL;

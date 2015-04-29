@@ -1,4 +1,9 @@
-package com.tibbers.resolver;
+package com.tibbers.context;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.w3c.dom.Document;
 
 import com.tibbers.config.PropertyValues;
 import com.tibbers.container.Container;
@@ -11,8 +16,9 @@ import com.tibbers.container.Container;
  * @see Container
  *
  */
-public abstract class AbstractContextResolver implements Resolver {
+public abstract class AbstractContext implements Context {
 	
+	private List<Document> documents = new ArrayList<Document>();
 	
 	private PropertyValues config;
 	/**
@@ -26,7 +32,7 @@ public abstract class AbstractContextResolver implements Resolver {
 	private Container container;
 	
 	
-	public AbstractContextResolver(PropertyValues config) {
+	public AbstractContext(PropertyValues config) {
 		this.config = config;
 	}
 	
@@ -38,6 +44,15 @@ public abstract class AbstractContextResolver implements Resolver {
 		return contextConfig;
 	}
 
+	protected List<Document> getDocuments() {
+		return documents;
+	}
+
+
+	protected void addDocument(Document doc){
+		documents.add(doc);
+	}
+	
 	@Override
 	public void setContainer(Container container) {
 		this.container = container;
@@ -46,6 +61,9 @@ public abstract class AbstractContextResolver implements Resolver {
 	public Container getContainer() {
 		return container;
 	}
+	
+	
+	
 	
 	
 	@Override

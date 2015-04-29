@@ -1,9 +1,8 @@
-package com.tibbers.resolver;
+package com.tibbers.context.reader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,23 +18,17 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
-import com.tibbers.config.PropertyValues;
+import com.tibbers.context.WebXmlContext;
+import com.tibbers.context.fileManager.DefaultFileManager;
+import com.tibbers.context.fileManager.FileManager;
 import com.tibbers.exception.TibbersException;
-import com.tibbers.resolver.fileManager.DefaultFileManager;
-import com.tibbers.resolver.fileManager.FileManager;
 import com.tibbers.util.ClassLoaderUtil;
 import com.tibbers.util.DomHelper;
 import com.tibbers.util.xml.SaxEntityResolver;
 import com.tibbers.util.xml.SaxErrorHandler;
 
-
-/**
- * xml配置文件解析器 用于解析xml配置文件
- * @author ch
- * @version 1.0
- * @serial 2015-04-17 
- */
-public class XmlContextResolver extends AbstractContextResolver {
+public class DefaultContextReader implements ContextReader{
+	
 	
 	private static final String INCLUDE_NODE="include";
 	private static final String INCLUDE_ATTRIBUTE="src";
@@ -48,34 +41,35 @@ public class XmlContextResolver extends AbstractContextResolver {
 	
 	protected Set<String> loadConfigurationFiles = new HashSet<String>();
 	
-	private List<Document> documents = new ArrayList<Document>();
+	private String contextConfig;
 	
-	public XmlContextResolver(PropertyValues config) {
-		super(config);
+	private List<Document> documents;
+	
+	
+	public DefaultContextReader(String contextConfig,List<Document> documents){
+		this.contextConfig = contextConfig;
+		this.documents = documents;
 	}
 
 	@Override
-	public void loading() {
-		loadConfigurationFiles(getContextConfig());
-		for(Document doc : documents){
-			print(doc);
-		}
-		//System.out.println(documents);
+	public void reader() {
+		loadConfigurationFiles(contextConfig);
 	}
+	
 	
 	/**
 	 * 加载配置文件
 	 * @param fileName
 	 */
-	private void loadConfigurationFiles(String fileName){
-		if(!loadConfigurationFiles.contains(fileName)){
-			loadConfigurationFiles.add(fileName);
-			URL url = getConfigurationUrl(getContextConfig());
+	private void loadConfigurationFiles(String contextConfig){
+		if(!loadConfigurationFiles.contains(contextConfig)){
+			loadConfigurationFiles.add(contextConfig);
+			URL url = getConfigurationUrl(contextConfig);
 			InputStream is =fileManager.loadFile(url);
 			InputSource in = new InputSource(is);
 			Document doc;
 			try {
-				doc = doLoadDocument(in);
+				doc = doLoadDocument(in,contextConfig);
 			} finally{
 				try {
 					is.close();
@@ -83,6 +77,8 @@ public class XmlContextResolver extends AbstractContextResolver {
 				}
 			}
 			loadIncludeElementValue(doc);
+			//保存doc
+			documents.add(doc);
 		}	
 	}
 	
@@ -101,20 +97,9 @@ public class XmlContextResolver extends AbstractContextResolver {
 				final String nodeName = element.getNodeName();
 				if(INCLUDE_NODE.equals(nodeName)){
 					loadConfigurationFiles(element.getAttribute(INCLUDE_ATTRIBUTE));
-					rootElement.removeChild(node);
+					//rootElement.removeChild(node);
 				}
 			}	
-		}
-		documents.add(doc);
-	}
-	
-	private void print(Document doc){
-		Element rootElement =  doc.getDocumentElement();
-		NodeList children = rootElement.getChildNodes();
-		int childSize = children.getLength();
-		for (int i = 0; i < childSize; i++) {
-			Node node =children.item(i);
-			System.out.println(node.getNodeName());
 		}
 	}
 	
@@ -123,19 +108,19 @@ public class XmlContextResolver extends AbstractContextResolver {
 	 * @param in 配置文件数据 {@link InputSource}
 	 * @return Document文档 {@link Document}
 	 */
-	protected Document doLoadDocument(InputSource in){
+	protected Document doLoadDocument(InputSource in,String contextConfig){
 		try {
 			return DomHelper.parse(in,errorHandler,entityResolver);
 		} 
 		catch (SAXParseException ex) {
 			throw new TibbersException(
-					"解析配置文件 ["+getContextConfig()+"]  第"+ex.getLineNumber()+"行,"+ex.getColumnNumber()+"列错误."+ex.getMessage(), ex);
+					"解析配置文件 ["+contextConfig+"]  第"+ex.getLineNumber()+"行,"+ex.getColumnNumber()+"列错误."+ex.getMessage(), ex);
 		}
 		catch (ParserConfigurationException ex) {
-			throw new TibbersException("解析配置文件["+getContextConfig()+"]失败."+ex.getMessage(), ex);
+			throw new TibbersException("解析配置文件["+contextConfig+"]失败."+ex.getMessage(), ex);
 		}
 		catch(Exception ex){
-			throw new TibbersException("解析配置文件["+getContextConfig()+"]失败."+ex.getMessage(), ex);
+			throw new TibbersException("解析配置文件["+contextConfig+"]失败."+ex.getMessage(), ex);
 		}
 	}
 	
@@ -147,7 +132,8 @@ public class XmlContextResolver extends AbstractContextResolver {
 	 * @return URL {@link URL}
 	 */
 	protected URL getConfigurationUrl(String fileName){
-		return ClassLoaderUtil.getResource(fileName, XmlContextResolver.class);
+		return ClassLoaderUtil.getResource(fileName, WebXmlContext.class);
 	}
+
 
 }

@@ -1,4 +1,4 @@
-package com.tibbers.resolver;
+package com.tibbers.context;
 
 import com.tibbers.container.Container;
 
@@ -9,7 +9,7 @@ import com.tibbers.container.Container;
  * @since 2015-04-17
  *
  */
-public interface Resolver {
+public interface Context {
 	
 	/**
 	 * 配置文件属性名称
