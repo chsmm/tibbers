@@ -10,5 +10,11 @@ import com.tibbers.context.Context;
  *
  */
 public interface Container {
+	
+	<T> void rigesteredBean(String id,Class<T> clazz);
+	
+	<T> T[] getType(Class<T> clazz);
+	
+	public int getBeanCount();
 
 }

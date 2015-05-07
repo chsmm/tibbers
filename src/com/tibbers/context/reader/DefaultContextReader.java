@@ -26,7 +26,12 @@ import com.tibbers.util.ClassLoaderUtil;
 import com.tibbers.util.DomHelper;
 import com.tibbers.util.xml.SaxEntityResolver;
 import com.tibbers.util.xml.SaxErrorHandler;
-
+/**
+ * 解析配置文件
+ * @author ch
+ * @version 1.0
+ * @serial 2015-05-07
+ */
 public class DefaultContextReader implements ContextReader{
 	
 	

@@ -8,8 +8,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.tibbers.container.Container;
+import com.tibbers.util.ClassLoaderUtil;
+import com.tibbers.util.StringUtil;
 
-
+/**
+ * 读取Document 
+ * @author ch
+ * @version 1.0
+ * @serial 2015-05-07
+ */
 public class DefaultDocumentReader implements DocumentReader{
 	
 	
@@ -58,12 +65,35 @@ public class DefaultDocumentReader implements DocumentReader{
 		}
 	}
 	
+	/**
+	 * 处理bean元素
+	 * @param element
+	 */
 	private void processBeanElement(Element element){
-		
+		String id= element.getAttribute("id");
+		//String name= element.getAttribute("name");
+		if(StringUtil.hasLength(id)){
+			String className = element.getAttribute("class");
+			if(StringUtil.hasLength(className)){
+				className = className.trim();
+				try {
+					Class<?> obj = ClassLoaderUtil.forName(className);
+					container.rigesteredBean(id, obj);
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
-	
+	/**
+	 * 处理自动装载
+	 * @param element
+	 */
 	private void processAutoScanElement(Element element){
-		
+		String basePackage = element.getAttribute("package");
+		//自动装载处理
+		AutoScanBeanPares autoScanBeanPares = new AutoScanBeanPares();
+		System.out.println(autoScanBeanPares.pares(basePackage));
 	}
 
 }

@@ -15,7 +15,7 @@ xmlns="http://www.tibbers.org/schema/mvc">
 			<xs:restriction base="xs:anyType">
 				<xs:attribute name="class" type="xs:string" use="required" ></xs:attribute>
 				<xs:attribute name="id" type="xs:string" use="required" ></xs:attribute>
-				<xs:attribute name="name" type="xs:string" use="optional" ></xs:attribute>
+			<!-- 	<xs:attribute name="name" type="xs:string" use="optional" ></xs:attribute> -->
 			</xs:restriction>
 			</xs:complexContent>
 		</xs:complexType>
