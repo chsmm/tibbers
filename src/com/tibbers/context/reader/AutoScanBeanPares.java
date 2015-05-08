@@ -8,6 +8,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.tibbers.container.Container;
+import com.tibbers.util.BeanUtil;
 import com.tibbers.util.ClassLoaderUtil;
 import com.tibbers.util.StringUtil;
 
@@ -19,13 +21,14 @@ import com.tibbers.util.StringUtil;
  */
 public class AutoScanBeanPares {
 	
+	private static final String DEFUALT_SUFFIX=".class";
 	
 	/**
 	 * 解析
 	 * @param basePackge 配置解析的包
 	 * @return Set<String> className
 	 */
-	public Set<String> pares(String basePackge){
+	public Set<String> pares(String basePackge,Container container){
 		String[] basePackges = StringUtil.paresToArray(basePackge, ";");
 		//存放实际packge容器
 		Set<String> packges= new HashSet<>(basePackges.length);
@@ -35,7 +38,7 @@ public class AutoScanBeanPares {
 			String newPackge = end==-1 ? packge:packge.substring(0, end-1);
 			packges.add(newPackge);
 		}
-		return doPackgePares(packges.toArray(new String[packges.size()]),basePackges);
+		return doPackgePares(packges.toArray(new String[packges.size()]),basePackges,container);
 	}
 	
 	/**
@@ -44,8 +47,8 @@ public class AutoScanBeanPares {
 	 * @param basePackges
 	 * @return Set<String> className
 	 */
-	private Set<String> doPackgePares(String[] packges,String[] basePackges){
-		Set<String> beans = new HashSet<String>(64);
+	private Set<String> doPackgePares(String[] packges,String[] basePackges,Container container){
+		Set<String> beans = new HashSet<String>();
 		for(int i=0;i<packges.length;i++){
 			String packge = nameConvertToDirectory(packges[i]);
 			Enumeration<URL> urls = ClassLoaderUtil.getResources(packge);
@@ -53,7 +56,7 @@ public class AutoScanBeanPares {
 				URL url = urls.nextElement();
 				try {
 					File file = new File(URLDecoder.decode(url.getFile(),"UTF-8"));
-					getBeanameByPackge(file,beans,packge,basePackges[i],false);
+					getBeanameByPackge(file,beans,packge,basePackges[i],false,container);
 				} catch (UnsupportedEncodingException e) {
 				}
 			}
@@ -69,19 +72,24 @@ public class AutoScanBeanPares {
 	 * @param basePakge
 	 * @param isAdd
 	 */
-	private void getBeanameByPackge(File file,Set<String> beans,String path,String basePakge,boolean isAdd){
+	private void getBeanameByPackge(File file,Set<String> beans,String path,String basePakge,boolean isAdd,Container container){
 		for(File subFile  : file.listFiles()){
 			String dir = path+"/"+subFile.getName();
 			String name = directoryConvertToName(dir);
 			if(subFile.isDirectory()){
-				getBeanameByPackge(subFile,beans,dir,basePakge,checkPackge(0,basePakge,0,name));
+				getBeanameByPackge(subFile,beans,dir,basePakge,checkPackge(0,basePakge,0,name),container);
 			}else{
-				if(isAdd){
-					beans.add(name);
+				if(isAdd && isDefualtSuffix(name) && !beans.contains(name)){
+					String className = name.substring(0,name.length()-DEFUALT_SUFFIX.length());
+					BeanUtil.rigesteredBean(className, container);
 				}
 			}	
 		}
-}
+	}
+	
+	private boolean isDefualtSuffix(String name){
+		return name.endsWith(DEFUALT_SUFFIX);
+	}
 	/**
 	 * 检查是否是自动装载包
 	 * @param basePakgeStart

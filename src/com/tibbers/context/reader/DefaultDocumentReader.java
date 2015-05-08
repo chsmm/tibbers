@@ -8,7 +8,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.tibbers.container.Container;
-import com.tibbers.util.ClassLoaderUtil;
+import com.tibbers.util.BeanUtil;
 import com.tibbers.util.StringUtil;
 
 /**
@@ -73,16 +73,7 @@ public class DefaultDocumentReader implements DocumentReader{
 		String id= element.getAttribute("id");
 		//String name= element.getAttribute("name");
 		if(StringUtil.hasLength(id)){
-			String className = element.getAttribute("class");
-			if(StringUtil.hasLength(className)){
-				className = className.trim();
-				try {
-					Class<?> obj = ClassLoaderUtil.forName(className);
-					container.rigesteredBean(id, obj);
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
+			BeanUtil.rigesteredBean( element.getAttribute("class"), container);
 		}
 	}
 	/**
@@ -93,7 +84,8 @@ public class DefaultDocumentReader implements DocumentReader{
 		String basePackage = element.getAttribute("package");
 		//自动装载处理
 		AutoScanBeanPares autoScanBeanPares = new AutoScanBeanPares();
-		System.out.println(autoScanBeanPares.pares(basePackage));
+		autoScanBeanPares.pares(basePackage,container);
 	}
+
 
 }

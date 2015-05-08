@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class Test {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException {
 	
 		//tt.test(t);
 	/*	System.out.println(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
@@ -26,7 +26,7 @@ public class Test {
 		for (int i = 0; i < cs.length; i++) {
 			System.out.println(cs[i].getName());
 		}*/
-		
+		System.out.println(Test.class.forName("com.tibbers.context.reader.DefaultContextReader"));
 		
 		String basePakge = "com.tibbers.util";
 		
